@@ -1,13 +1,13 @@
 import React from "react";
-import { Link, useNavigate, Outlet } from "react-router-dom";
+import { Link, useLocation } from "wouter";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const Dashboard = () => {
-  const navigate = useNavigate();
+  const [, setLocation] = useLocation();
 
   const handleLogout = () => {
     localStorage.removeItem("isAuthenticated");
-    navigate("/");
+    setLocation("/");
   };
 
   return (
@@ -17,22 +17,22 @@ const Dashboard = () => {
         <h4>Admin Panel</h4>
         <ul className="nav flex-column">
           <li className="nav-item">
-            <Link className="nav-link text-white" to="/admin/students">
+            <Link href="/admin/students" className="nav-link text-white">
               Manage Students
             </Link>
           </li>
           <li className="nav-item">
-            <Link className="nav-link text-white" to="/admin/courses">
+            <Link href="/admin/courses" className="nav-link text-white">
               Manage Courses
             </Link>
           </li>
           <li className="nav-item">
-            <Link className="nav-link text-white" to="/admin/results">
+            <Link href="/admin/results" className="nav-link text-white">
               Manage Results
             </Link>
           </li>
           <li className="nav-item">
-            <Link className="nav-link text-white" to="/admin/transcripts">
+            <Link href="/admin/transcripts" className="nav-link text-white">
               Generate Transcripts
             </Link>
           </li>
@@ -44,9 +44,10 @@ const Dashboard = () => {
         </ul>
       </div>
 
-      {/* Main Content */}
+      {/* Main Content Area */}
       <div className="container-fluid p-4">
-        <Outlet />
+        <h2>Welcome to the Dashboard</h2>
+        <p>Select a section from the sidebar to manage records.</p>
       </div>
     </div>
   );

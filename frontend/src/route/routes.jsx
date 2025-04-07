@@ -1,36 +1,39 @@
 import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
-import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
-import Students from "./pages/Students";
-import Courses from "./pages/Courses";
-import Results from "./pages/Results";
-import Transcripts from "./pages/Transcripts";
+import { Route, Switch } from "wouter";
+import Login from "../pages/Login";
+import Dashboard from "../pages/Dashboard";
+import Redirect from "../components/Redirect"; // our custom redirect
+
+import Students from "../pages/Students";
+import Courses from "../pages/Courses";
+import Results from "../pages/Results";
+import Transcripts from "../pages/Transcripts";
 
 const isAuthenticated = () =>
   localStorage.getItem("isAuthenticated") === "true";
 
 const AppRoutes = () => (
-  <Routes>
-    <Route
-      path="/"
-      element={
-        isAuthenticated() ? <Navigate to="/admin/students" /> : <Login />
-      }
-    />
-
-    <Route
-      path="/admin"
-      element={isAuthenticated() ? <Dashboard /> : <Navigate to="/" />}
-    >
-      <Route path="students" element={<Students />} />
-      <Route path="courses" element={<Courses />} />
-      <Route path="results" element={<Results />} />
-      <Route path="transcripts" element={<Transcripts />} />
+  <Switch>
+    <Route path="/">
+      {isAuthenticated() ? <Redirect to="/admin/students" /> : <Login />}
     </Route>
 
-    <Route path="*" element={<Navigate to="/" />} />
-  </Routes>
+    <Route path="/admin">
+      {isAuthenticated() ? <Dashboard /> : <Redirect to="/" />}
+    </Route>
+
+    {/* You can add these routes later when ready */}
+    
+    <Route path="/admin/students" component={Students} />
+    <Route path="/admin/courses" component={Courses} />
+    <Route path="/admin/results" component={Results} />
+    <Route path="/admin/transcripts" component={Transcripts} />
+   
+
+    <Route path="*">
+      <Redirect to="/" />
+    </Route>
+  </Switch>
 );
 
 export default AppRoutes;

@@ -1,18 +1,18 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation } from "wouter";
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
+  const [, setLocation] = useLocation();
 
   const handleLogin = (e) => {
     e.preventDefault();
 
-    // Simple hardcoded login check for now (replace with real auth logic)
+    // Simple hardcoded login check (you’ll replace this with real auth later)
     if (username === "admin" && password === "admin123") {
       localStorage.setItem("isAuthenticated", "true");
-      navigate("/dashboard");
+      setLocation("/admin/students"); // redirect after login
     } else {
       alert("Invalid credentials");
     }
