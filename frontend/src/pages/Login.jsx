@@ -5,16 +5,34 @@ const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [, setLocation] = useLocation();
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
-    // Simple hardcoded login check (you’ll replace this with real auth later)
-    if (username === "admin" && password === "admin123") {
-      localStorage.setItem("isAuthenticated", "true");
-      setLocation("/admin/students"); // redirect after login
-    } else {
-      alert("Invalid credentials");
+    try {
+      const response = await fetch("http://127.0.0.1:8000/login/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem("isAuthenticated", "true");
+        setLocation("/admin");
+      } else {
+        alert(data.error || "Login failed");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      alert("Something went wrong");
+    } finally {
+      setLoading(false);
     }
   };
 
