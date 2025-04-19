@@ -5,13 +5,14 @@ import {
   Button,
   Modal,
   Form,
-  Container,
   Row,
   Col,
   InputGroup,
 } from "react-bootstrap";
+import { useLocation } from "wouter";
+import AdminSidebar from "../components/Sidebar";
 
-const API_URL = "http://localhost:8000/api/courses/";
+const API_URL = "http://127.0.0.1:8000/api/courses/";
 
 const Courses = () => {
   const [courses, setCourses] = useState([]);
@@ -23,6 +24,8 @@ const Courses = () => {
     title: "",
     unit: "",
   });
+
+  const [, setLocation] = useLocation();
 
   useEffect(() => {
     fetchCourses();
@@ -69,135 +72,149 @@ const Courses = () => {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.setItem("isAuthenticated", "false");
+    setLocation("/");
+  };
+
   const filteredCourses = courses.filter((c) =>
     c.title.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
-    <Container>
-      <Row className="mt-4 mb-3 align-items-center">
-        <Col>
-          <h2 className="fw-bold text-success">📘 Course Management</h2>
-        </Col>
-        <Col className="text-end">
-          <Button variant="success" onClick={() => setShowModal(true)}>
-            ➕ Add Course
-          </Button>
-        </Col>
-      </Row>
+    <div className="d-flex">
+      {/* Sidebar */}
+      <AdminSidebar handleLogout={handleLogout} />
 
-      <Row className="mb-3">
-        <Col md={6}>
-          <InputGroup>
-            <Form.Control
-              type="text"
-              placeholder="🔍 Search by title..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </InputGroup>
-        </Col>
-      </Row>
+      {/* Main Content */}
+      <div className="container-fluid p-4">
+        <Row className="mt-2 mb-3 align-items-center">
+          <Col>
+            <h2 className="fw-bold text-success">📘 Course Management</h2>
+          </Col>
+          <Col className="text-end">
+            <Button variant="success" onClick={() => setShowModal(true)}>
+              ➕ Add Course
+            </Button>
+          </Col>
+        </Row>
 
-      <Table bordered hover responsive className="shadow-sm">
-        <thead className="table-success">
-          <tr>
-            <th>Course Code</th>
-            <th>Title</th>
-            <th>Unit</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredCourses.length > 0 ? (
-            filteredCourses.map((course) => (
-              <tr key={course.id}>
-                <td>{course.code}</td>
-                <td>{course.title}</td>
-                <td>{course.unit}</td>
-                <td>
-                  <Button
-                    size="sm"
-                    variant="warning"
-                    className="me-2"
-                    onClick={() => handleEdit(course)}
-                  >
-                    ✏️ Edit
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="danger"
-                    onClick={() => handleDelete(course.id)}
-                  >
-                    🗑️ Delete
-                  </Button>
+        <Row className="mb-3">
+          <Col md={6}>
+            <InputGroup>
+              <Form.Control
+                type="text"
+                placeholder="🔍 Search by title..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </InputGroup>
+          </Col>
+        </Row>
+
+        <Table bordered hover responsive className="shadow-sm">
+          <thead className="table-success">
+            <tr>
+              <th>Course Code</th>
+              <th>Title</th>
+              <th>Unit</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredCourses.length > 0 ? (
+              filteredCourses.map((course) => (
+                <tr key={course.id}>
+                  <td>{course.code}</td>
+                  <td>{course.title}</td>
+                  <td>{course.unit}</td>
+                  <td>
+                    <Button
+                      size="sm"
+                      variant="warning"
+                      className="me-2"
+                      onClick={() => handleEdit(course)}
+                    >
+                      ✏️ Edit
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="danger"
+                      onClick={() => handleDelete(course.id)}
+                    >
+                      🗑️ Delete
+                    </Button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="4" className="text-center text-muted">
+                  No courses found.
                 </td>
               </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="4" className="text-center text-muted">
-                No courses found.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </Table>
+            )}
+          </tbody>
+        </Table>
 
-      {/* Modal for Add/Edit */}
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>
-            {currentCourse.id ? "Edit Course" : "Add New Course"}
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form onSubmit={handleSubmit}>
-            <Form.Group className="mb-3">
-              <Form.Label>Course Code</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="e.g., CSC101"
-                value={currentCourse.code}
-                onChange={(e) =>
-                  setCurrentCourse({ ...currentCourse, code: e.target.value })
-                }
-                required
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Course Title</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="e.g., Introduction to Computer Science"
-                value={currentCourse.title}
-                onChange={(e) =>
-                  setCurrentCourse({ ...currentCourse, title: e.target.value })
-                }
-                required
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Course Unit</Form.Label>
-              <Form.Control
-                type="number"
-                placeholder="e.g., 3"
-                value={currentCourse.unit}
-                onChange={(e) =>
-                  setCurrentCourse({ ...currentCourse, unit: e.target.value })
-                }
-                required
-              />
-            </Form.Group>
-            <div className="text-end">
-              <Button variant="success" type="submit">
-                {currentCourse.id ? "Update Course" : "Add Course"}
-              </Button>
-            </div>
-          </Form>
-        </Modal.Body>
-      </Modal>
-    </Container>
+        {/* Modal */}
+        <Modal show={showModal} onHide={() => setShowModal(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>
+              {currentCourse.id ? "Edit Course" : "Add New Course"}
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form onSubmit={handleSubmit}>
+              <Form.Group className="mb-3">
+                <Form.Label>Course Code</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="e.g., CSC101"
+                  value={currentCourse.code}
+                  onChange={(e) =>
+                    setCurrentCourse({ ...currentCourse, code: e.target.value })
+                  }
+                  required
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Course Title</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="e.g., Introduction to Computer Science"
+                  value={currentCourse.title}
+                  onChange={(e) =>
+                    setCurrentCourse({
+                      ...currentCourse,
+                      title: e.target.value,
+                    })
+                  }
+                  required
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Course Unit</Form.Label>
+                <Form.Control
+                  type="number"
+                  placeholder="e.g., 3"
+                  value={currentCourse.unit}
+                  onChange={(e) =>
+                    setCurrentCourse({ ...currentCourse, unit: e.target.value })
+                  }
+                  required
+                />
+              </Form.Group>
+              <div className="text-end">
+                <Button variant="success" type="submit">
+                  {currentCourse.id ? "Update Course" : "Add Course"}
+                </Button>
+              </div>
+            </Form>
+          </Modal.Body>
+        </Modal>
+      </div>
+    </div>
   );
 };
 

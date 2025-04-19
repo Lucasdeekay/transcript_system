@@ -1,15 +1,29 @@
 import React, { useState } from "react";
 import { useLocation } from "wouter";
+import { FaUser, FaLock, FaSignInAlt } from "react-icons/fa";
+import {
+  Spinner,
+  Alert,
+  Card,
+  Button,
+  Form,
+  Container,
+  Row,
+  Col,
+  InputGroup,
+} from "react-bootstrap";
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [, setLocation] = useLocation();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
 
     try {
       const response = await fetch("http://127.0.0.1:8000/login/", {
@@ -26,39 +40,91 @@ const Login = () => {
         localStorage.setItem("isAuthenticated", "true");
         setLocation("/admin");
       } else {
-        alert(data.error || "Login failed");
+        setError(data.error || "Invalid username or password.");
       }
-    } catch (error) {
-      console.error("Login error:", error);
-      alert("Something went wrong");
+    } catch (err) {
+      console.error("Login error:", err);
+      setError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="login-container">
-      <h2>Admin Login</h2>
-      <form onSubmit={handleLogin}>
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-        />
-        <br />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <br />
-        <button type="submit">Login</button>
-      </form>
-    </div>
+    <Container
+      fluid
+      className="vh-100 d-flex justify-content-center align-items-center bg-light"
+    >
+      <Row className="w-100 justify-content-center">
+        <Col md={6} lg={4}>
+          <Card className="p-4 shadow-sm rounded-4">
+            <h3 className="text-center text-primary mb-4">
+              <FaSignInAlt className="me-2" /> Admin Login
+            </h3>
+
+            {error && (
+              <Alert
+                variant="danger"
+                onClose={() => setError(null)}
+                dismissible
+              >
+                {error}
+              </Alert>
+            )}
+
+            <Form onSubmit={handleLogin}>
+              <Form.Group className="mb-3">
+                <Form.Label>Username</Form.Label>
+                <InputGroup>
+                  <InputGroup.Text>
+                    <FaUser />
+                  </InputGroup.Text>
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                  />
+                </InputGroup>
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label>Password</Form.Label>
+                <InputGroup>
+                  <InputGroup.Text>
+                    <FaLock />
+                  </InputGroup.Text>
+                  <Form.Control
+                    type="password"
+                    placeholder="Enter password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                </InputGroup>
+              </Form.Group>
+
+              <div className="d-grid mt-4">
+                <Button type="submit" variant="primary" disabled={loading}>
+                  {loading ? (
+                    <>
+                      <Spinner animation="border" size="sm" className="me-2" />
+                      Logging in...
+                    </>
+                  ) : (
+                    <>
+                      <FaSignInAlt className="me-2" />
+                      Login
+                    </>
+                  )}
+                </Button>
+              </div>
+            </Form>
+          </Card>
+        </Col>
+      </Row>
+    </Container>
   );
 };
 

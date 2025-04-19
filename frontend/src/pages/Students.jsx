@@ -5,13 +5,14 @@ import {
   Button,
   Modal,
   Form,
-  Container,
   Row,
   Col,
   InputGroup,
 } from "react-bootstrap";
+import { useLocation } from "wouter";
+import AdminSidebar from "../components/Sidebar";
 
-const API_URL = "http://localhost:8000/api/students/";
+const API_URL = "http://127.0.0.1:8000/api/students/";
 
 const Students = () => {
   const [students, setStudents] = useState([]);
@@ -19,10 +20,15 @@ const Students = () => {
   const [showModal, setShowModal] = useState(false);
   const [currentStudent, setCurrentStudent] = useState({
     id: null,
-    name: "",
+    first_name: "",
+    last_name: "",
+    email: "",
     matric_number: "",
     department: "",
+    level: "",
   });
+
+  const [, setLocation] = useLocation();
 
   useEffect(() => {
     fetchStudents();
@@ -61,119 +67,221 @@ const Students = () => {
       } else {
         await axios.post(API_URL, currentStudent);
       }
+      fetchStudents(); // refresh list
       setShowModal(false);
       setCurrentStudent({
         id: null,
-        name: "",
+        first_name: "",
+        last_name: "",
+        email: "",
         matric_number: "",
         department: "",
+        level: "",
       });
-      fetchStudents();
     } catch (error) {
       console.error("Error saving student:", error);
     }
   };
 
-  const filteredStudents = students.filter((s) =>
-    s.name.toLowerCase().includes(search.toLowerCase())
+  const handleLogout = () => {
+    localStorage.setItem("isAuthenticated", "false");
+    setLocation("/");
+  };
+
+  // Inside Students.js
+
+  const filteredStudents = students.filter((s) => {
+    const searchText = search.toLowerCase();
+    return (
+      s.first_name.toLowerCase().includes(searchText) ||
+      s.last_name.toLowerCase().includes(searchText) ||
+      s.email.toLowerCase().includes(searchText) ||
+      s.matric_number.toLowerCase().includes(searchText) ||
+      s.department.toLowerCase().includes(searchText) ||
+      s.level.toString().includes(searchText)
+    );
+  });
+
+  return (
+    <div className="d-flex">
+      {/* Sidebar */}
+      <AdminSidebar handleLogout={handleLogout} />
+
+      {/* Main Content */}
+      <div className="container-fluid p-4">
+        <Row className="mt-2 mb-3 align-items-center">
+          <Col>
+            <h2 className="fw-bold text-primary">👨‍🎓 Student Management</h2>
+          </Col>
+          <Col className="text-end">
+            <Button variant="primary" onClick={() => setShowModal(true)}>
+              ➕ Add Student
+            </Button>
+          </Col>
+        </Row>
+
+        <Row className="mb-3">
+          <Col md={6}>
+            <InputGroup>
+              <Form.Control
+                type="text"
+                placeholder="🔍 Search by name..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </InputGroup>
+          </Col>
+        </Row>
+
+        <Table bordered hover responsive className="shadow-sm">
+          <thead className="table-primary">
+            <tr>
+              <th>Matric No</th>
+              <th>First Name</th>
+              <th>Last Name</th>
+              <th>Email</th>
+              <th>Department</th>
+              <th>Level</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredStudents.length > 0 ? (
+              filteredStudents.map((student) => (
+                <tr key={student.id}>
+                  <td>{student.matric_number}</td>
+                  <td>{student.first_name}</td>
+                  <td>{student.last_name}</td>
+                  <td>{student.email}</td>
+                  <td>{student.department}</td>
+                  <td>{student.level}</td>
+                  <td>
+                    <Button
+                      size="sm"
+                      variant="warning"
+                      className="me-2"
+                      onClick={() => handleEdit(student)}
+                    >
+                      ✏️ Edit
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="danger"
+                      onClick={() => handleDelete(student.id)}
+                    >
+                      🗑️ Delete
+                    </Button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="7" className="text-center text-muted">
+                  No students found.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </Table>
+
+        {/* Modal */}
+        <Modal show={showModal} onHide={() => setShowModal(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>
+              {currentStudent.id ? "Edit Student" : "Add New Student"}
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form onSubmit={handleSubmit}>
+              <Form.Group className="mb-3">
+                <Form.Label>First Name</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={currentStudent.first_name}
+                  onChange={(e) =>
+                    setCurrentStudent({
+                      ...currentStudent,
+                      first_name: e.target.value,
+                    })
+                  }
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Last Name</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={currentStudent.last_name}
+                  onChange={(e) =>
+                    setCurrentStudent({
+                      ...currentStudent,
+                      last_name: e.target.value,
+                    })
+                  }
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Email</Form.Label>
+                <Form.Control
+                  type="email"
+                  value={currentStudent.email}
+                  onChange={(e) =>
+                    setCurrentStudent({
+                      ...currentStudent,
+                      email: e.target.value,
+                    })
+                  }
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Matric Number</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={currentStudent.matric_number}
+                  onChange={(e) =>
+                    setCurrentStudent({
+                      ...currentStudent,
+                      matric_number: e.target.value,
+                    })
+                  }
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Department</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={currentStudent.department}
+                  onChange={(e) =>
+                    setCurrentStudent({
+                      ...currentStudent,
+                      department: e.target.value,
+                    })
+                  }
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Level</Form.Label>
+                <Form.Control
+                  type="number"
+                  value={currentStudent.level}
+                  onChange={(e) =>
+                    setCurrentStudent({
+                      ...currentStudent,
+                      level: e.target.value,
+                    })
+                  }
+                />
+              </Form.Group>
+              <div className="text-end">
+                <Button variant="primary" type="submit">
+                  {currentStudent.id ? "Update Student" : "Add Student"}
+                </Button>
+              </div>
+            </Form>
+          </Modal.Body>
+        </Modal>
+      </div>
+    </div>
   );
-
-   return (
-     <Container className="mt-4">
-       <Card className="shadow-lg p-4 rounded-4">
-         <Card.Body>
-           <div className="d-flex justify-content-between align-items-center mb-3">
-             <h3 className="text-primary">Students</h3>
-             <Button variant="primary" onClick={() => setShow(true)}>
-               + Add Student
-             </Button>
-           </div>
-
-           <Table bordered hover responsive className="text-center">
-             <thead className="table-primary">
-               <tr>
-                 <th>Name</th>
-                 <th>Email</th>
-                 <th>Actions</th>
-               </tr>
-             </thead>
-             <tbody>
-               {students.map((student) => (
-                 <tr key={student.id}>
-                   <td>{student.name}</td>
-                   <td>{student.email}</td>
-                   <td>
-                     <Button
-                       variant="warning"
-                       size="sm"
-                       onClick={() => handleEdit(student)}
-                     >
-                       Edit
-                     </Button>{" "}
-                     <Button
-                       variant="danger"
-                       size="sm"
-                       onClick={() => handleDelete(student.id)}
-                     >
-                       Delete
-                     </Button>
-                   </td>
-                 </tr>
-               ))}
-             </tbody>
-           </Table>
-         </Card.Body>
-       </Card>
-
-       {/* Modal for Add/Edit */}
-       <Modal show={show} onHide={() => setShow(false)} centered>
-         <Modal.Header closeButton>
-           <Modal.Title>
-             {currentStudent.id ? "Edit Student" : "Add New Student"}
-           </Modal.Title>
-         </Modal.Header>
-         <Modal.Body>
-           <Form onSubmit={handleSubmit}>
-             <Form.Group className="mb-3">
-               <Form.Label>Full Name</Form.Label>
-               <Form.Control
-                 type="text"
-                 placeholder="Enter full name"
-                 value={currentStudent.name}
-                 onChange={(e) =>
-                   setCurrentStudent({
-                     ...currentStudent,
-                     name: e.target.value,
-                   })
-                 }
-                 required
-               />
-             </Form.Group>
-             <Form.Group className="mb-3">
-               <Form.Label>Email Address</Form.Label>
-               <Form.Control
-                 type="email"
-                 placeholder="Enter email"
-                 value={currentStudent.email}
-                 onChange={(e) =>
-                   setCurrentStudent({
-                     ...currentStudent,
-                     email: e.target.value,
-                   })
-                 }
-                 required
-               />
-             </Form.Group>
-             <div className="d-grid">
-               <Button variant="success" type="submit">
-                 {currentStudent.id ? "Update Student" : "Add Student"}
-               </Button>
-             </div>
-           </Form>
-         </Modal.Body>
-       </Modal>
-     </Container>
-   );
 };
 
 export default Students;

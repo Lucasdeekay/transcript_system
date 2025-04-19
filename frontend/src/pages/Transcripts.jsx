@@ -1,103 +1,123 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Table, Button, Form, Container, Card, Spinner } from "react-bootstrap";
+import {
+  Table,
+  Container,
+  Row,
+  Col,
+  InputGroup,
+  Form,
+  Button,
+} from "react-bootstrap";
+import { useLocation } from "wouter";
+import {
+  FaFileAlt,
+} from "react-icons/fa";
+import AdminSidebar from "../components/Sidebar";
 
-const Transcript = () => {
-  const [studentId, setStudentId] = useState("");
-  const [studentName, setStudentName] = useState("");
-  const [transcript, setTranscript] = useState([]);
-  const [cgpa, setCgpa] = useState(0.0);
-  const [loading, setLoading] = useState(false);
+const API_BASE = "http://127.0.0.1:8000/api";
 
-  const fetchTranscript = async () => {
-    if (!studentId) return;
-    setLoading(true);
+const Transcripts = () => {
+  const [transcripts, setTranscripts] = useState([]);
+  const [search, setSearch] = useState("");
+  const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    fetchTranscripts();
+  }, []);
+
+  const fetchTranscripts = async () => {
     try {
-      const response = await axios.get(
-        `http://localhost:8000/transcript/${studentId}/`
-      );
-      setStudentName(response.data.student);
-      setTranscript(response.data.transcript);
-      setCgpa(response.data.cgpa);
+      const res = await axios.get(`${API_BASE}/transcripts/`);
+      setTranscripts(res.data);
     } catch (error) {
-      console.error("Error fetching transcript", error);
+      console.error("Failed to fetch transcripts", error);
     }
-    setLoading(false);
   };
 
+  const handleLogout = () => {
+    localStorage.setItem("isAuthenticated", "false");
+    setLocation("/");
+  };
+
+  const filteredTranscripts = transcripts.filter((t) =>
+    t.student_name?.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
-    <Container className="mt-4">
-      <Card className="shadow-lg p-4 rounded-4">
-        <Card.Body>
-          <div className="d-flex justify-content-between align-items-center mb-3">
-            <h3 className="text-primary">Student Transcript</h3>
-            <div className="d-flex">
+    <div className="d-flex">
+      {/* Sidebar */}
+      <AdminSidebar handleLogout={handleLogout} />
+
+      {/* Main Content */}
+      <Container className="mt-4">
+        <Row className="mt-2 mb-3 align-items-center">
+          <Col>
+            <h2 className="fw-bold text-primary">
+              <FaFileAlt className="me-2" /> Student Transcripts
+            </h2>
+          </Col>
+        </Row>
+
+        <Row className="mb-3">
+          <Col md={6}>
+            <InputGroup>
               <Form.Control
                 type="text"
-                placeholder="Enter Student ID"
-                value={studentId}
-                onChange={(e) => setStudentId(e.target.value)}
-                className="me-2"
+                placeholder="🔍 Search by Student Name"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
               />
-              <Button
-                variant="primary"
-                onClick={fetchTranscript}
-                disabled={loading}
-              >
-                {loading ? (
-                  <Spinner animation="border" size="sm" />
-                ) : (
-                  "Fetch Transcript"
-                )}
-              </Button>
-            </div>
-          </div>
+            </InputGroup>
+          </Col>
+        </Row>
 
-          {transcript.length > 0 && (
-            <>
-              <h5>Student: {studentName}</h5>
-              <Table striped bordered hover responsive className="text-center">
-                <thead className="table-primary">
-                  <tr>
-                    <th>Course Code</th>
-                    <th>Course Title</th>
-                    <th>Unit</th>
-                    <th>Grade</th>
-                    <th>Points</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {transcript.map((record, index) => (
-                    <tr key={index}>
-                      <td>{record.course_code}</td>
-                      <td>{record.course}</td>
-                      <td>{record.unit}</td>
-                      <td>{record.grade}</td>
-                      <td>{record.point}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-
-              <h4>
-                CGPA: <strong>{cgpa}</strong>
-              </h4>
-              <Button
-                variant="success"
-                href={`http://localhost:8000/transcript/pdf/${studentId}/`}
-              >
-                Download PDF
-              </Button>
-            </>
-          )}
-
-          {transcript.length === 0 && !loading && studentId && (
-            <p className="text-danger">No transcript found for this student.</p>
-          )}
-        </Card.Body>
-      </Card>
-    </Container>
+        <Table bordered hover responsive className="text-center">
+          <thead className="table-primary">
+            <tr>
+              <th>Student</th>
+              <th>Matric Number</th>
+              <th>Program</th>
+              <th>CGPA</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredTranscripts.length > 0 ? (
+              filteredTranscripts.map((transcript) => (
+                <tr key={transcript.id}>
+                  <td>{transcript.student_name}</td>
+                  <td>{transcript.matric_number}</td>
+                  <td>{transcript.program}</td>
+                  <td>{transcript.cgpa}</td>
+                  <td>
+                    <Button
+                      variant="success"
+                      size="sm"
+                      onClick={() =>
+                        window.open(
+                          `${API_BASE}/transcripts/${transcript.id}/download/`,
+                          "_blank"
+                        )
+                      }
+                    >
+                      Download PDF
+                    </Button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="5" className="text-muted">
+                  No transcripts available.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </Table>
+      </Container>
+    </div>
   );
 };
 
-export default Transcript;
+export default Transcripts;

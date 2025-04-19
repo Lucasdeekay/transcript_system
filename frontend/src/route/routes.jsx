@@ -15,7 +15,7 @@ const isAuthenticated = () =>
 const AppRoutes = () => (
   <Switch>
     <Route path="/">
-      {isAuthenticated() ? <Redirect to="/admin/students" /> : <Login />}
+      {isAuthenticated() ? <Redirect to="/admin" /> : <Login />}
     </Route>
 
     <Route path="/admin">
@@ -23,12 +23,11 @@ const AppRoutes = () => (
     </Route>
 
     {/* You can add these routes later when ready */}
-    
+
     <Route path="/admin/students" component={Students} />
     <Route path="/admin/courses" component={Courses} />
     <Route path="/admin/results" component={Results} />
     <Route path="/admin/transcripts" component={Transcripts} />
-   
 
     <Route path="*">
       <Redirect to="/" />
