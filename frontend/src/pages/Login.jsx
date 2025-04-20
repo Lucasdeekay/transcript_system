@@ -12,6 +12,8 @@ import {
   Col,
   InputGroup,
 } from "react-bootstrap";
+import { useAuth } from "../functions/Auth";
+
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -19,6 +21,7 @@ const Login = () => {
   const [, setLocation] = useLocation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { login } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -37,8 +40,11 @@ const Login = () => {
       const data = await response.json();
 
       if (response.ok) {
-        localStorage.setItem("isAuthenticated", "true");
-        setLocation("/admin");
+        login();
+        setTimeout(() => {
+          setLocation("/admin");
+        }, 0);
+
       } else {
         setError(data.error || "Invalid username or password.");
       }

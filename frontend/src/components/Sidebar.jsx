@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "wouter";
+import { useLocation, Link } from "wouter";
 import {
   FaUserGraduate,
   FaBook,
@@ -7,8 +7,18 @@ import {
   FaSignOutAlt,
 } from "react-icons/fa";
 import { Button } from "react-bootstrap";
+import { useAuth } from "../functions/Auth";
 
-const AdminSidebar = ({ handleLogout }) => {
+
+const AdminSidebar = () => {
+  const [, setLocation] = useLocation();
+  const { logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    setLocation("/");
+  };
+
   return (
     <div
       className="bg-dark text-white p-4 vh-100"

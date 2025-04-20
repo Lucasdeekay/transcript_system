@@ -9,7 +9,6 @@ import {
   Col,
   InputGroup,
 } from "react-bootstrap";
-import { useLocation } from "wouter";
 import AdminSidebar from "../components/Sidebar";
 
 const API_URL = "http://127.0.0.1:8000/api/students/";
@@ -27,8 +26,6 @@ const Students = () => {
     department: "",
     level: "",
   });
-
-  const [, setLocation] = useLocation();
 
   useEffect(() => {
     fetchStudents();
@@ -83,11 +80,6 @@ const Students = () => {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.setItem("isAuthenticated", "false");
-    setLocation("/");
-  };
-
   // Inside Students.js
 
   const filteredStudents = students.filter((s) => {
@@ -105,7 +97,7 @@ const Students = () => {
   return (
     <div className="d-flex">
       {/* Sidebar */}
-      <AdminSidebar handleLogout={handleLogout} />
+      <AdminSidebar />
 
       {/* Main Content */}
       <div className="container-fluid p-4">

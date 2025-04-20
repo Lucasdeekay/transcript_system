@@ -10,7 +10,6 @@ import {
   Col,
   InputGroup,
 } from "react-bootstrap";
-import { useLocation } from "wouter";
 import {
   FaFileAlt,
 } from "react-icons/fa";
@@ -29,15 +28,25 @@ const Results = () => {
     student: "",
     course: "",
     grade: "",
+    semester: "",
+    session: "",
   });
 
-  const [, setLocation] = useLocation();
 
   useEffect(() => {
     fetchResults();
     fetchStudents();
     fetchCourses();
   }, []);
+
+  const generateSessions = () => {
+    const sessions = [];
+    for (let year = 2010; year <= 2029; year++) {
+      sessions.push(`${year}/${year + 1}`);
+    }
+    return sessions;
+  };
+
 
   const fetchResults = async () => {
     const res = await axios.get(`${API_BASE}/results/`);
@@ -79,11 +88,6 @@ const Results = () => {
     setCurrentResult({ id: null, student: "", course: "", grade: "" });
   };
 
-  const handleLogout = () => {
-    localStorage.setItem("isAuthenticated", "false");
-    setLocation("/");
-  };
-
   const filteredResults = results.filter((r) => {
     const text = search.toLowerCase();
     return (
@@ -95,7 +99,7 @@ const Results = () => {
   return (
     <div className="d-flex">
       {/* Sidebar */}
-      <AdminSidebar handleLogout={handleLogout} />
+      <AdminSidebar />
 
       {/* Main Content */}
       <Container className="mt-4">
@@ -221,9 +225,7 @@ const Results = () => {
                 </Col>
                 <Col md={12} className="mb-3">
                   <Form.Label>Grade</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="e.g. A, B+, C"
+                  <Form.Select
                     value={currentResult.grade}
                     onChange={(e) =>
                       setCurrentResult({
@@ -232,7 +234,52 @@ const Results = () => {
                       })
                     }
                     required
-                  />
+                  >
+                    <option value="">Select Grade</option>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
+                    <option value="E">E</option>
+                    <option value="F">F</option>
+                  </Form.Select>
+                </Col>
+                <Col md={12} className="mb-3">
+                  <Form.Label>Semester</Form.Label>
+                  <Form.Select
+                    value={currentResult.semester}
+                    onChange={(e) =>
+                      setCurrentResult({
+                        ...currentResult,
+                        semester: e.target.value,
+                      })
+                    }
+                    required
+                  >
+                    <option value="">Select Semester</option>
+                    <option value="First Semester">First Semester</option>
+                    <option value="Second Semester">Second Semester</option>
+                  </Form.Select>
+                </Col>
+                <Col md={12} className="mb-3">
+                  <Form.Label>Session</Form.Label>
+                  <Form.Select
+                    value={currentResult.session}
+                    onChange={(e) =>
+                      setCurrentResult({
+                        ...currentResult,
+                        session: e.target.value,
+                      })
+                    }
+                    required
+                  >
+                    <option value="">Select Session</option>
+                    {generateSessions().map((session) => (
+                      <option key={session} value={session}>
+                        {session}
+                      </option>
+                    ))}
+                  </Form.Select>
                 </Col>
               </Row>
               <div className="d-grid">

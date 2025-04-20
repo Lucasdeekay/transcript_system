@@ -1,4 +1,4 @@
-// src/components/Redirect.jsx
+// components/Redirect.js
 import { useEffect } from "react";
 import { useLocation } from "wouter";
 
@@ -9,7 +9,7 @@ const Redirect = ({ to }) => {
     setLocation(to);
   }, [to, setLocation]);
 
-  return null;
+  return null; // render nothing
 };
 
 export default Redirect;

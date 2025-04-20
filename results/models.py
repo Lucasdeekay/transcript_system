@@ -18,10 +18,12 @@ class Course(models.Model):
     def __str__(self):
         return self.course_code
 
+GRADE_CHOICES = [("A", "A"), ("B", "B"), ("C", "C"), ("D", "D"), ("E", "E"), ("F", "F"),]
+
 class Result(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    grade = models.CharField(max_length=2)
+    grade = models.CharField(max_length=2,choices=GRADE_CHOICES)
     semester = models.CharField(max_length=20)
     session = models.CharField(max_length=20)
 

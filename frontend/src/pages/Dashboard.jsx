@@ -1,5 +1,4 @@
 import React from "react";
-import { useLocation } from "wouter";
 import { Row, Col, Card } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import {
@@ -10,17 +9,11 @@ import {
 import AdminSidebar from "../components/Sidebar";
 
 const Dashboard = () => {
-  const [, setLocation] = useLocation();
-
-  const handleLogout = () => {
-    localStorage.setItem("isAuthenticated", "false");
-    setLocation("/");
-  };
 
   return (
     <div className="d-flex">
       {/* Sidebar */}
-      <AdminSidebar handleLogout={handleLogout} />
+      <AdminSidebar />
 
       {/* Main Content Area */}
       <div className="container-fluid p-4">

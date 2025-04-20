@@ -9,7 +9,6 @@ import {
   Form,
   Button,
 } from "react-bootstrap";
-import { useLocation } from "wouter";
 import {
   FaFileAlt,
 } from "react-icons/fa";
@@ -20,7 +19,6 @@ const API_BASE = "http://127.0.0.1:8000/api";
 const Transcripts = () => {
   const [transcripts, setTranscripts] = useState([]);
   const [search, setSearch] = useState("");
-  const [, setLocation] = useLocation();
 
   useEffect(() => {
     fetchTranscripts();
@@ -35,11 +33,6 @@ const Transcripts = () => {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.setItem("isAuthenticated", "false");
-    setLocation("/");
-  };
-
   const filteredTranscripts = transcripts.filter((t) =>
     t.student_name?.toLowerCase().includes(search.toLowerCase())
   );
@@ -47,7 +40,7 @@ const Transcripts = () => {
   return (
     <div className="d-flex">
       {/* Sidebar */}
-      <AdminSidebar handleLogout={handleLogout} />
+      <AdminSidebar />
 
       {/* Main Content */}
       <Container className="mt-4">

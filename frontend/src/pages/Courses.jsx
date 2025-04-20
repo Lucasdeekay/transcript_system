@@ -9,7 +9,6 @@ import {
   Col,
   InputGroup,
 } from "react-bootstrap";
-import { useLocation } from "wouter";
 import AdminSidebar from "../components/Sidebar";
 
 const API_URL = "http://127.0.0.1:8000/api/courses/";
@@ -20,12 +19,10 @@ const Courses = () => {
   const [showModal, setShowModal] = useState(false);
   const [currentCourse, setCurrentCourse] = useState({
     id: null,
-    code: "",
-    title: "",
+    course_code: "",
+    course_title: "",
     unit: "",
   });
-
-  const [, setLocation] = useLocation();
 
   useEffect(() => {
     fetchCourses();
@@ -65,16 +62,11 @@ const Courses = () => {
         await axios.post(API_URL, currentCourse);
       }
       setShowModal(false);
-      setCurrentCourse({ id: null, code: "", title: "", unit: "" });
+      setCurrentCourse({ id: null, course_code: "", course_title: "", unit: "" });
       fetchCourses();
     } catch (error) {
       console.error("Error saving course:", error);
     }
-  };
-
-  const handleLogout = () => {
-    localStorage.setItem("isAuthenticated", "false");
-    setLocation("/");
   };
 
   const filteredCourses = courses.filter((c) =>
@@ -84,7 +76,7 @@ const Courses = () => {
   return (
     <div className="d-flex">
       {/* Sidebar */}
-      <AdminSidebar handleLogout={handleLogout} />
+      <AdminSidebar />
 
       {/* Main Content */}
       <div className="container-fluid p-4">
@@ -171,9 +163,9 @@ const Courses = () => {
                 <Form.Control
                   type="text"
                   placeholder="e.g., CSC101"
-                  value={currentCourse.code}
+                  value={currentCourse.course_code}
                   onChange={(e) =>
-                    setCurrentCourse({ ...currentCourse, code: e.target.value })
+                    setCurrentCourse({ ...currentCourse, course_code: e.target.value })
                   }
                   required
                 />
@@ -183,11 +175,11 @@ const Courses = () => {
                 <Form.Control
                   type="text"
                   placeholder="e.g., Introduction to Computer Science"
-                  value={currentCourse.title}
+                  value={currentCourse.course_title}
                   onChange={(e) =>
                     setCurrentCourse({
                       ...currentCourse,
-                      title: e.target.value,
+                      course_title: e.target.value,
                     })
                   }
                   required
