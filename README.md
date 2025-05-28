@@ -24,7 +24,7 @@ This project is a web application designed to manage student information, course
 ## 📁 Project Structure
 
 ```bash
-TRANSCRIPT_SYSTEM/
+transcript_system/
 ├── backend/
 │   ├── pycache/
 │   ├── results/
@@ -103,7 +103,7 @@ Follow these steps to get the project up and running on your local machine.
 
 ```bash
 git clone <repository_url>
-cd TRANSCRIPT_SYSTEM
+cd transcript_system
 ```
 
 ### 2. Backend Setup (Django)
