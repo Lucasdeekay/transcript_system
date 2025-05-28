@@ -23,6 +23,7 @@ This project is a web application designed to manage student information, course
 
 ## 📁 Project Structure
 
+```bash
 TRANSCRIPT_SYSTEM/
 ├── backend/
 │   ├── pycache/
@@ -79,7 +80,7 @@ TRANSCRIPT_SYSTEM/
 ├── db.sqlite3
 ├── manage.py
 └── requirements.txt
-
+```
 
 ## 🛠️ Technologies Used
 
