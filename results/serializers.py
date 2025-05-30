@@ -59,17 +59,32 @@ class CourseSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 class ResultSerializer(serializers.ModelSerializer):
-    # Read-only fields to display student's matric number and course title
     student_matric_number = serializers.CharField(source='student.matric_number', read_only=True)
-    course_title = serializers.CharField(source='course.course_title', read_only=True)
+    course_title = serializers.CharField(source='course.title', read_only=True)
 
     class Meta:
         model = Result
-        # Include all original fields, plus the new read-only display fields
         fields = "__all__"
-        # Alternatively, you can explicitly list them for more control:
-        # fields = ['id', 'student', 'course', 'grade', 'semester', 'session', 'student_matric_number', 'course_title']
 
+    def create(self, validated_data):
+        try:
+            # First create the result
+            result = super().create(validated_data)
+            # Update the transcript
+            Result.update_transcript(result.student)
+            return result
+        except Exception as e:
+            raise serializers.ValidationError(str(e))
+
+    def update(self, instance, validated_data):
+        try:
+            # First update the result
+            result = super().update(instance, validated_data)
+            # Update the transcript
+            Result.update_transcript(result.student)
+            return result
+        except Exception as e:
+            raise serializers.ValidationError(str(e))
 
 class TranscriptSerializer(serializers.ModelSerializer):
     class Meta:

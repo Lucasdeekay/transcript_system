@@ -20,5 +20,5 @@ class ResultAdmin(admin.ModelAdmin):
 
 @admin.register(Transcript)
 class TranscriptAdmin(admin.ModelAdmin):
-    list_display = ("student", "generated_at")
+    list_display = ("student", "generated_at", "total_units", "total_grade_points", "cgpa")
     search_fields = ("student__matric_number",)
