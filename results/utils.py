@@ -6,17 +6,8 @@ from reportlab.lib import colors
 from django.http import FileResponse
 import io
 import os
-from .models import Student, Result, Transcript
+from .models import GRADE_POINTS, Student, Result, Transcript
 from django.conf import settings
-
-# Define grade points mapping
-GRADE_POINTS = {
-    'A': 4.0,
-    'B': 3.0,
-    'C': 2.0,
-    'D': 1.0,
-    'F': 0.0,
-}
 
 def generate_transcript(student_id):
     # Get student and their results
